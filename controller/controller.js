@@ -1,3 +1,4 @@
+const { log } = require("console");
 
 const db = []
 
@@ -180,21 +181,71 @@ const controllers = {
     deletecontacts: async (req, res) => {
         try {
             const id = req.params.id;
-    
+
             const indexof = await index(id);
             if (indexof === -1) {
                 return res.status(404).json({ message: 'Contact not found' });
             }
-    
+
             let deleteed = await db.splice(indexof, 1);
             if (!deleteed) return res.status(400).json({ message: 'Contact deletion failed' });
             return res.status(200).json({ message: 'Contact deleted Successfully' });
-            
+
         } catch (err) {
             console.log(err);
             return res.status(500).json({ message: 'Internal server error' });
         }
 
+    },
+
+    progressbar: async (req, res) => {
+        try {
+            fetch('https://imgv3.fotor.com/images/blog-cover-image/part-blurry-image.jpg')
+                .then((res) => {
+                    const contentLength = res.headers.get('content-length');
+                    console.log('content-length', contentLength);
+                    let loaded = 0;
+
+                    const customResponse = new Response(
+                        new ReadableStream({
+                            start(controller) {
+                                console.log('controller',controller);
+                                const reader = res.body.getReader();
+                                console.log("reader",reader);
+                                function read() {
+                                    reader.read().then(({ done, value }) => {
+                                        if (done) {
+                                            controller.close();
+                                            return;
+                                        }
+
+                                        loaded += value.byteLength;
+                                        console.log(Math.round((loaded / contentLength) * 100));
+                                        controller.enqueue(value);
+                                        read();
+                                    });
+                                }
+
+                                read();
+                            },
+                        })
+                    );
+
+                    return customResponse;
+                })
+                .then((customResponse) => {
+                    return customResponse.blob();
+                })
+                .then((blob) => {
+                    console.log("complete");
+                    return res.send({msg: "complete"})
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        } catch (err) {
+            console.log(err);
+        }
     }
 }
 
