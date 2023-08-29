@@ -13,7 +13,7 @@ route.put('/updateContact/:id',updateContact);
 
 route.delete('/deleteContacts/:id',deletecontacts);
 
-route.get('/progressbar',progressbar)
+
 
 
 module.exports = route;

@@ -1,4 +1,5 @@
 const { log } = require("console");
+const path = require('path')
 
 const db = []
 
@@ -198,55 +199,15 @@ const controllers = {
 
     },
 
-    progressbar: async (req, res) => {
-        try {
-            fetch('https://imgv3.fotor.com/images/blog-cover-image/part-blurry-image.jpg')
-                .then((res) => {
-                    const contentLength = res.headers.get('content-length');
-                    console.log('content-length', contentLength);
-                    let loaded = 0;
+        
 
-                    const customResponse = new Response(
-                        new ReadableStream({
-                            start(controller) {
-                                console.log('controller',controller);
-                                const reader = res.body.getReader();
-                                console.log("reader",reader);
-                                function read() {
-                                    reader.read().then(({ done, value }) => {
-                                        if (done) {
-                                            controller.close();
-                                            return;
-                                        }
-
-                                        loaded += value.byteLength;
-                                        console.log(Math.round((loaded / contentLength) * 100));
-                                        controller.enqueue(value);
-                                        read();
-                                    });
-                                }
-
-                                read();
-                            },
-                        })
-                    );
-
-                    return customResponse;
-                })
-                .then((customResponse) => {
-                    return customResponse.blob();
-                })
-                .then((blob) => {
-                    console.log("complete");
-                    return res.send({msg: "complete"})
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-        } catch (err) {
-            console.log(err);
-        }
+    getPage: async (req,res)=>{
+        console.log("getpage");
+        const filePath = path.join(__dirname,"../public/index.html")
+        res.sendFile(filePath)
     }
+
+    
 }
 
 module.exports = controllers;

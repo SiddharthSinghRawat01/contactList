@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>
+        <h1>Progress Updates</h1>
+        <ul id="progressList"></ul> <!-- List container -->
+    </div>
+    
+    <script src="socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+    
+        socket.on('data', (msg) => {
+            console.log('Data received:', msg);
+            appendMessage(msg, 'incoming');
+        });
+    
+        function appendMessage(msg, type) {
+            console.log("append", msg, type);
+            const progressList = document.getElementById('progressList'); // List container
+            const listItem = document.createElement('li'); // Create a new list item
+            listItem.textContent = `Progress: ${msg.msg}%`; // Set the text content of the list item
+            listItem.classList.add(type); // Apply the "incoming" class
+    
+            // Append the new list item to the list container
+            progressList.appendChild(listItem);
+        }
+    </script>
+    
+</body>
+
+</html>
